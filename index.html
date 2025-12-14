@@ -1,1010 +1,122 @@
-<?php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>House of Games Countdown</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-require_once __DIR__.'/vendor/autoload.php';
-require_once __DIR__.'/config.php';
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        background: radial-gradient(circle at top, #b00000, #000000 70%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Impact, Haettenschweiler, "Arial Black", sans-serif;
+        color: #ffffff;
+    }
 
-session_start();
+    .frame {
+        border: 12px solid #ffffff;
+        padding: 40px 60px;
+        box-shadow: 0 0 40px rgba(255,0,0,0.8);
+        background: linear-gradient(180deg, #111, #000);
+        text-align: center;
+    }
 
-if (!empty($_SESSION['_contact_form_error'])) {
-    $error = $_SESSION['_contact_form_error'];
-    unset($_SESSION['_contact_form_error']);
-}
+    h1 {
+        font-size: 2.2rem;
+        margin-bottom: 30px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+    }
 
-if (!empty($_SESSION['_contact_form_success'])) {
-    $success = true;
-    unset($_SESSION['_contact_form_success']);
-}
+    .timer {
+        font-size: 4.5rem;
+        letter-spacing: 0.25em;
+        background: #000;
+        padding: 20px 30px;
+        border: 6px solid #fff;
+        box-shadow: inset 0 0 20px rgba(255,0,0,0.6);
+    }
 
-?>
+    .labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        font-size: 0.9rem;
+        letter-spacing: 0.15em;
+        opacity: 0.85;
+    }
 
+    .labels span {
+        width: 25%;
+        text-align: center;
+    }
 
-<!doctype html>
-<html lang="en"><head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+    .ended {
+        font-size: 4rem;
+        letter-spacing: 0.3em;
+        animation: flash 1s infinite;
+    }
 
-        <meta name="description" content="">
-        <meta name="author" content="">
+    @keyframes flash {
+        0% { color: #fff; }
+        50% { color: #ff0000; }
+        100% { color: #fff; }
+    }
+</style>
+</head>
+<body>
 
-        <title>Matthew and Marianna are getting married</title>
-		
-<script>(function () {
-  const second = 1000,
-        minute = second * 60,
-        hour = minute * 60,
-        day = hour * 24;
+<div class="frame">
+    <h1>House of Games</h1>
 
-  //I'm adding this section so I don't have to keep updating this pen every year :-)
-  //remove this if you don't need it
-  let today = new Date(),
-      dd = String(today.getDate()).padStart(2, "0"),
-      mm = String(today.getMonth() + 1).padStart(2, "0"),
-      yyyy = today.getFullYear(),
-      nextYear = yyyy + 1,
-      dayMonth = "10/07/",
-      birthday = dayMonth + yyyy;
-  
-  today = mm + "/" + dd + "/" + yyyy;
-  if (today > birthday) {
-    birthday = dayMonth + nextYear;
-  }
-  //end
-  
-  const countDown = new Date(birthday).getTime(),
-      x = setInterval(function() {    
+    <div id="timer" class="timer">
+        00:00:00:00
+    </div>
 
-        const now = new Date().getTime(),
-              distance = countDown - now;
+    <div class="labels">
+        <span>DAYS</span>
+        <span>HRS</span>
+        <span>MINS</span>
+        <span>SECS</span>
+    </div>
+</div>
 
-        document.getElementById("days").innerText = Math.floor(distance / (day)),
-          document.getElementById("hours").innerText = Math.floor((distance % (day)) / (hour)),
-          document.getElementById("minutes").innerText = Math.floor((distance % (hour)) / (minute)),
-          document.getElementById("seconds").innerText = Math.floor((distance % (minute)) / second);
+<script>
+    /*
+      3:00 PM UK time on 18 Dec 2025
+      December is GMT, so UTC = 15:00
+    */
+    const targetUTC = Date.UTC(2025, 11, 18, 15, 0, 0);
 
-        //do something later when date is reached
-        if (distance < 0) {
-          document.getElementById("headline").innerText = "It's my birthday!";
-          document.getElementById("countdown").style.display = "none";
-          document.getElementById("content").style.display = "block";
-          clearInterval(x);
+    function update() {
+        const now = Date.now();
+        let diff = targetUTC - now;
+
+        if (diff <= 0) {
+            document.getElementById("timer").className = "ended";
+            document.getElementById("timer").textContent = "TIME UP";
+            return;
         }
-        //seconds
-      }, 0)
-  }());
-  </script>
-        
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
-		<link href="https://fonts.googleapis.com/css2?family=Tangerine:wght@400;500;700&display=swap" rel="stylesheet">
-
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-
-        <link href="css/bootstrap-icons.css" rel="stylesheet">
-
-        <link href="css/templatemo-leadership-event.css" rel="stylesheet">
-        
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-	
-    </head>
-    
-    <body>
-
-        <nav class="navbar navbar-expand-lg">
-            <div class="container">
-
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <a href="index.html" class="navbar-brand mx-auto mx-lg-0">
-                    <i class="bi-heart brand-logo"></i>
-                    <span class="brand-text">Matthew &amp;<br>Marianna</span>
-                </a>
-
-                <a class="nav-link custom-btn btn d-lg-none" href="../gr/">Cypriot version</a>
-
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link click-scroll" href="#section_1">Home</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link click-scroll" href="#section_2">Our story</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link click-scroll" href="#section_3">Dates</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link click-scroll" href="#section_4">Important info</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link click-scroll" href="#section_6">Maps</a>
-                        </li>
-
-           <!--             <li class="nav-item">
-                            <a class="nav-link click-scroll" href="#section_6">Dos and Don't's</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link click-scroll" href="#section_7">Contact</a>
-                        </li>
-        -->
-                        <li class="nav-item">
-                            <a class="nav-link custom-btn btn d-none d-lg-block" href="#section_7">Contact</a>
-                        </li>
-                    </ul>
-                <div>
-                        
-            </div>
-        </nav>
-
-        <main>
-
-            <section class="hero" id="section_1">
-                <div class="container">
-                    <div class="row">
-
-                        <div class="col-lg-5 col-12 m-auto">
-                            <div class="hero-text">
-
-                            <!--    <h1 class="text-white mb-4"><u class="text-info">The Big Day</u> <br>WEDDING of the year</h1>  -->
-
-							 <h1 style="font-family:Tangerine; color:white; text-shadow: 6px 6px 6px #000">Matthew and Marianna's<br>Wedding <br>7th October 2023</h1>
-
-                  <!--            <div class="d-flex justify-content-center align-items-center">
-                                    <span class="date-text">7th October 2023</span>
-
-                                    <span class="location-text">Limassol, Cyprus</span></span>
-                                </div>  
-
-				-->
-            
-					 <!-- 			
-								<iframe src="https://free.timeanddate.com/countdown/i8kqmqwv/n1366/cf111/cm0/cu4/ct0/cs0/ca0/cr0/ss0/cac000/cpc000/pc66c/tc66c/fs100/szw320/szh135/tat7th%20October%202023/tac000/tpc000/mac000/mpc000/iso2023-10-07T15:00:00" allowtransparency="true" frameborder="0" width="320" height="135"></iframe>
-         -->
-
-
-
-                        <!--
-						        <a href="#section_2" class="custom-link bi-arrow-down arrow-icon"></a>
-                    -->						
-					        </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="video-wrap">
-                    <video autoplay="" loop="" muted="" class="custom-video" poster="">
-                        <source src="videos/intro.mp4" type="video/mp4">
-
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-            </section>
-
-<!--
-
-            <section class="highlight">
-                <div class="container">
-                    <div class="row">
-
-                        <div class="col-lg-4 col-md-6 col-12">
-                            <div class="highlight-thumb">
-                                <img src="images/highlight/1.jpeg" class="highlight-image img-fluid" alt="">
-
-                                <div class="highlight-info">
-                                    <h3 class="highlight-title">Matthew's favourite</h3>
-
-                                    <a href="https://www.youtube.com/embed/tcn0NSq8ApA?autoplay=1&mute=1" target="_blank" class="bi-youtube highlight-icon"></a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 col-md-6 col-12">
-                            <div class="highlight-thumb">
-                                <img src="images/highlight/2.JPG" class="highlight-image img-fluid" alt="">
-
-                                <div class="highlight-info">
-                                    <h3 class="highlight-title">Matthew's 2nd favourite</h3>
-
-                                    <a href="https://www.youtube.com/embed/G__VTazZtp0?autoplay=1&mute=1" target="_blank" class="bi-youtube highlight-icon"></a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 col-md-6 col-12">
-                            <div class="highlight-thumb">
-                                <img src="images/highlight/3.jpg" class="highlight-image img-fluid" alt="">
-
-                                <div class="highlight-info">
-                                    <h3 class="highlight-title">And one for Marianna</h3>
-
-                                    <a href="https://www.youtube.com/watch?v=L3K51VoL7CQ" target="_blank" class="bi-youtube highlight-icon"></a>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-
--->
-		 <section class="venue section-padding" id="section_2">
-                <div class="container">
-                    <div class="row">
-
-<script src="https://cdn.logwork.com/widget/countdown.js"></script>
-<a href="https://logwork.com/countdown-xhhz" class="countdown-timer" data-style="circles" data-timezone="Europe/London" data-textcolor="#663399" data-date="2023-10-07 16:00" data-background="#663399" data-digitscolor="#000000" data-unitscolor="#663399">Countdown to the Big Day!</a>
-                    </div>
-                </div>
-        </section>
-
-
-
-
-
-
-
-<!--
-            <section class="about section-padding" id="section_2">
-                <div class="container">
-                    <div class="row">
-
-                        <div class="col-lg-10 col-12">
-                            <h2 class="mb-4">Our <u class="text-info">Story</u></h2>
-                        </div>
-
-                        <div class="col-lg-6 col-12">
-                            <h3 class="mb-3">We met in a crowded Physics classroom</h3>
-
-                            <p>TThe rest is history</p>
-
-                            <a class="custom-btn custom-border-btn btn custom-link mt-3 me-3" href="#section_3">Meet Our Team</a>
-
-                            <a class="custom-btn btn custom-link mt-3" href="#section_4">The Wedding Schedule</a>
-                        </div>
-
-                        <div class="col-lg-6 col-12 mt-5 mt-lg-0">
-                            <h4>Lots of people will be there</h4>
-
-                            <div class="avatar-group border-top py-5 mt-5">
-                                <img src="images/avatar/portrait-good-looking-brunette-young-asian-woman.jpg" class="img-fluid avatar-image" alt="">
-
-                                <img src="images/avatar/happy-asian-man-standing-with-arms-crossed-grey-wall.jpg" class="img-fluid avatar-image avatar-image-left" alt="">
-
-                                <img src="images/avatar/senior-man-white-sweater-eyeglasses.jpg" class="img-fluid avatar-image avatar-image-left" alt="">
-
-                                <img src="images/avatar/pretty-smiling-joyfully-female-with-fair-hair-dressed-casually-looking-with-satisfaction.jpg" class="img-fluid avatar-image avatar-image-left" alt="">
-
-                                <p class="d-inline">120+ People are attending with us</p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
--->
-
-
-
-            <section class="schedule section-padding" id="section_3">
-                <div class="container">
-                    <div class="row">
-
-                        <div class="col-lg-12 col-12">
-                            <h2 class="mb-5 text-center">The <u class="text-info">Big Day(s)</u></h2>
-
-                            <nav>
-                                <div class="nav nav-tabs align-items-baseline" id="nav-tab" role="tablist">
-                                    <button class="nav-link active" id="nav-DayOne-tab" data-bs-toggle="tab" data-bs-target="#nav-DayOne" type="button" role="tab" aria-controls="nav-DayOne" aria-selected="true">
-                                        <h3>
-                                            <span>Cyprus</span>
-                                            <small>7th October 2023</small>
-                                        </h3>
-                                    </button>
-
-                                    <button class="nav-link" id="nav-DayTwo-tab" data-bs-toggle="tab" data-bs-target="#nav-DayTwo" type="button" role="tab" aria-controls="nav-DayTwo" aria-selected="false">
-                                        <h3>
-                                            <span>England</span>
-                                            <small>21st October 2023</small>
-                                        </h3>
-                                    </button>
-
-                            </div>
-                            </nav>
-
-                            <div class="tab-content mt-5" id="nav-tabContent">
-                                <div class="tab-pane fade show active" id="nav-DayOne" role="tabpanel" aria-labelledby="nav-DayOne-tab">
-                                    <div class="row border-bottom pb-5 mb-5">
-                                        <div class="col-lg-4 col-12">
-                                            <img src="images/schedule/4.jpeg" class="schedule-image img-fluid" alt="">
-                                        </div>
-
-                                        <div class="col-lg-8 col-12 mt-3 mt-lg-0">
-                                            
-                                            <h4 class="mb-2">Football match</h4>
-
-                                            <p>Lots of things will be going on this day including a football match between the English and Cypriots.</p>
-
-                                            <div class="d-flex align-items-center mt-4">
-                                                <div class="avatar-group d-flex">
-                                                    <img src="images/avatar/happy-asian-man-standing-with-arms-crossed-grey-wall.jpg" class="img-fluid avatar-image" alt="">
-
-                                                    <div class="ms-3">
-                                                        Matthew Berrow
-                                                        <p class="speakers-text mb-0">Groom</p>
-                                                    </div>
-                                                </div>
-
-                                                <span class="mx-3 mx-lg-5">
-                                                    <i class="bi-clock me-2"></i>
-                                                    9:00 - 3:45 PM
-                                                </span>
-
-                                                <span class="mx-1 mx-lg-5">
-                                                    <i class="bi-layout-sidebar me-2"></i>
-                                                    Footie pitch
-												</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row border-bottom pb-5 mb-5">
-                                        <div class="col-lg-4 col-12">
-                                            <img src="images/schedule/5.jpeg" class="schedule-image img-fluid" alt="">
-                                        </div>
-
-                                        <div class="col-lg-8 col-12 mt-3 mt-lg-0">
-                                            <h4 class="mb-2">Pub crawl</h4>
-
-                                            <p>Who can drink the most?</p>
-
-                                            <div class="d-flex align-items-center mt-4">
-                                                <div class="avatar-group d-flex">
-                                                    <img src="images/avatar/portrait-good-looking-brunette-young-asian-woman.jpg" class="img-fluid avatar-image" alt="">
-
-                                                    <div class="ms-3">
-                                                    Natalie
-                                                    <p class="speakers-text mb-0">Event Planner</p>
-                                                </div>
-                                                </div>
-
-                                                <span class="mx-3 mx-lg-5">
-                                                    <i class="bi-clock me-2"></i>
-                                                    10:00 - 10:45 AM
-                                                </span>
-
-                                                <span class="mx-1 mx-lg-5">
-                                                    <i class="bi-layout-sidebar me-2"></i>
-                                                    100-D Room
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-lg-4 col-12">
-                                            <img src="images/schedule/6.jpeg" class="schedule-image img-fluid" alt="">
-                                        </div>
-
-                                        <div class="col-lg-8 col-12 mt-3 mt-lg-0">
-                                            <h4 class="mb-2">Late night kebabs</h4>
-
-                                            <p>The best on the island</p>
-
-                                            <div class="d-flex align-items-center mt-4">
-                                                <div class="avatar-group d-flex">
-                                                    <img src="images/avatar/senior-man-white-sweater-eyeglasses.jpg" class="img-fluid avatar-image" alt="">
-
-                                                    <div class="ms-3">
-                                                    Thomas
-                                                    <p class="speakers-text mb-0">Startup Coach</p>
-                                                </div>
-                                                </div>
-
-                                                <span class="mx-3 mx-lg-5">
-                                                    <i class="bi-clock me-2"></i>
-                                                    11:00 - 11:45 AM
-                                                </span>
-
-                                                <span class="mx-1 mx-lg-5">
-                                                    <i class="bi-layout-sidebar me-2"></i>
-                                                    100-B Room
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="tab-pane fade" id="nav-DayTwo" role="tabpanel" aria-labelledby="nav-DayTwo-tab">
-                                    <div class="row border-bottom pb-5 mb-5">
-                                        <div class="col-lg-4 col-12">
-                                            <img src="images/schedule/7.jpg" class="schedule-image img-fluid" alt="">
-                                        </div>
-
-                                        <div class="col-lg-8 col-12 mt-3 mt-lg-0">
-                                            
-                                            <h4 class="mb-2">The Day Itself</h4>
-
-                                            <p>Not a dry eye in the house (except Matthew)</p>
-
-                                            <div class="d-flex align-items-center mt-4">
-                                                <div class="avatar-group d-flex">
-                                                    <img src="images/avatar/pretty-smiling-joyfully-female-with-fair-hair-dressed-casually-looking-with-satisfaction.jpg" class="img-fluid avatar-image" alt="">
-
-                                                    <div class="ms-3">
-                                                        Isabella
-                                                        <p class="speakers-text mb-0">Event Manager</p>
-                                                    </div>
-                                                </div>
-
-                                                <span class="mx-3 mx-lg-5">
-                                                    <i class="bi-clock me-2"></i>
-                                                    9:00 - 9:45 AM
-                                                </span>
-
-                                                <span class="mx-1 mx-lg-5">
-                                                    <i class="bi-layout-sidebar me-2"></i>
-                                                    Conference Hall 2
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-lg-4 col-12">
-                                            <img src="images/schedule/8.jpg" class="schedule-image img-fluid" alt="">
-                                        </div>
-
-                                        <div class="col-lg-8 col-12 mt-3 mt-lg-0">
-                                            <h4 class="mb-2">Huuuge party</h4>
-
-                                            <p>You ain't seen a party till you've seen a Cypriot wedding party</p>
-
-                                            <div class="d-flex align-items-center mt-4">
-                                                <div class="avatar-group d-flex">
-                                                    <img src="images/avatar/indoor-shot-beautiful-happy-african-american-woman-smiling-cheerfully-keeping-her-arms-folded-relaxing-indoors-after-morning-lectures-university.jpg" class="img-fluid avatar-image" alt="">
-
-                                                    <div class="ms-3">
-                                                    Samantha
-                                                    <p class="speakers-text mb-0">Top Level Speaker</p>
-                                                </div>
-                                                </div>
-
-                                                <span class="mx-3 mx-lg-5">
-                                                    <i class="bi-clock me-2"></i>
-                                                    10:00 - 10:45 AM
-                                                </span>
-
-                                                <span class="mx-1 mx-lg-5">
-                                                    <i class="bi-layout-sidebar me-2"></i>
-                                                    100-A Room
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="tab-pane fade" id="nav-DayThree" role="tabpanel" aria-labelledby="nav-DayThree-tab">
-                                    <div class="row border-bottom pb-5 mb-5">
-                                        <div class="col-lg-4 col-12">
-                                            <img src="images/schedule/9.jpg" class="schedule-image img-fluid" alt="">
-                                        </div>
-
-                                        <div class="col-lg-8 col-12 mt-3 mt-lg-0">
-                                            
-                                            <h4 class="mb-2">Hung over?</h4>
-
-                                            <p>Join us for a fry up - full English obviously</p>
-
-                                            <div class="d-flex align-items-center mt-4">
-                                                <div class="avatar-group d-flex">
-                                                    <img src="images/avatar/pretty-smiling-joyfully-female-with-fair-hair-dressed-casually-looking-with-satisfaction.jpg" class="img-fluid avatar-image" alt="">
-
-                                                    <div class="ms-3">
-                                                        Isabella
-                                                        <p class="speakers-text mb-0">Event Manager</p>
-                                                    </div>
-                                                </div>
-
-                                                <span class="mx-3 mx-lg-5">
-                                                    <i class="bi-clock me-2"></i>
-                                                    9:00 - 9:45 AM
-                                                </span>
-
-                                                <span class="mx-1 mx-lg-5">
-                                                    <i class="bi-layout-sidebar me-2"></i>
-                                                    Conference Hall 1
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-lg-4 col-12">
-                                            <img src="images/schedule/8.jpg" class="schedule-image img-fluid" alt="">
-                                        </div>
-
-                                        <div class="col-lg-8 col-12 mt-3 mt-lg-0">
-                                            <h4 class="mb-2">Tug of war</h4>
-
-                                            <p>Who's the strongest nation?</p>
-
-                                            <div class="d-flex align-items-center mt-4">
-                                                <div class="avatar-group d-flex">
-                                                    <img src="images/avatar/indoor-shot-beautiful-happy-african-american-woman-smiling-cheerfully-keeping-her-arms-folded-relaxing-indoors-after-morning-lectures-university.jpg" class="img-fluid avatar-image" alt="">
-
-                                                    <div class="ms-3">
-                                                    Samantha
-                                                    <p class="speakers-text mb-0">Top Level Speaker</p>
-                                                </div>
-                                                </div>
-
-                                                <span class="mx-3 mx-lg-5">
-                                                    <i class="bi-clock me-2"></i>
-                                                    10:00 - 10:45 AM
-                                                </span>
-
-                                                <span class="mx-1 mx-lg-5">
-                                                    <i class="bi-layout-sidebar me-2"></i>
-                                                    100-C Room
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="tab-pane fade" id="nav-DayFour" role="tabpanel" aria-labelledby="nav-DayFour-tab">
-                                    <div class="row">
-                                        <div class="col-lg-4 col-12">
-                                            <img src="images/schedule/jeshoots-com-TWRCH-GaKr4-unsplash.jpg" class="schedule-image img-fluid" alt="">
-                                        </div>
-
-                                        <div class="col-lg-8 col-12 mt-3 mt-lg-0">
-                                            <h4 class="mb-2">More?</h4>
-
-                                            <p>Just in case you wanted more drink.</p>
-
-                                            <div class="d-flex align-items-center mt-4">
-
-                                                <span>
-                                                    <i class="bi-clock me-2"></i>
-                                                    8:00 - 9:00 AM
-                                                </span>
-
-                                                <span class="mx-1 mx-lg-5">
-                                                    <i class="bi-layout-sidebar me-2"></i>
-                                                    Conference Hall 2
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-            <section class="call-to-action section-padding">
-                <div class="container">
-                    <div class="row align-items-center">
-
-                        <div class="col-lg-7 col-12">
-                            <h2 class="text-white mb-4">Are you going to <u class="text-info">attend?</u></h2>
-
-                            <p class="text-white">We'd love to see you there</p>
-                        </div>
-
-                        <div class="col-lg-3 col-12 ms-lg-auto mt-4 mt-lg-0">
-                            <a href="#section_7" class="custom-btn btn">Let us know</a>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-            <section class="pricing section-padding" id="section_4">
-                <div class="container">
-                    <div class="row">
-
-                        <div class="col-lg-10 col-12 text-center mx-auto mb-5">
-                            <h2>Useful <u class="text-info">Information</u></h2>
-                        </div>
-
-                        <div class="col-lg-4 col-md-6 col-12 mb-5 mb-lg-0">
-                            <div class="pricing-thumb bg-white shadow-lg">                                
-                                <div class="pricing-title-wrap d-flex align-items-center">
-
-                                    <h4 class="pricing-title text-white mb-0">What should you wear?</h4>
-
-                                    
-                                </div>
-
-                                <div class="pricing-body">
-                                    <p>
-                                        <i class="bi-cup me-2"></i> Tasteful
-                                    </p>
-
-                                    <p>
-                                        <i class="bi-controller me-2"></i> Not white
-                                    </p>
-
-                                    <p>
-                                        <i class="bi-chat-square me-2"></i> But tasteful
-                                    </p>
-
-                                    <div class="border-bottom pb-3 mb-4"></div>
-
-                                    <p>Any problems, let us know</p>
-
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 col-md-6 col-12 mb-5 mb-lg-0">
-                            <div class="pricing-thumb bg-white shadow-lg">                                
-                                <div class="pricing-title-wrap d-flex align-items-center">
-
-                                    <h4 class="pricing-title text-white mb-0">Lorem ipsom</h4>
-
-                                </div>
-
-                                <div class="pricing-body">
-                                    <p>
-                                        <i class="bi-cup me-2"></i> Lorem Ipsum dolor sit amet</p>
-
-                                    <p>
-                                        <i class="bi-boombox me-2"></i> sed do eiusmod tempor</p>
-
-                                    <p>
-                                        <i class="bi-chat-square me-2"></i> incididunt ut labore et </p>
-
-                                    <div class="border-bottom pb-3 mb-4"></div>
-
-                                    <p>Duis aute irure </p>
-
-                                    <a class="custom-btn btn mt-3" href="#">More info</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 col-md-6 col-12">
-                            <div class="pricing-thumb bg-white shadow-lg">                                
-                                <div class="pricing-title-wrap d-flex align-items-center">
-
-                                    <h4 class="pricing-title text-white mb-0">More text</h4>
-
-                                </div>
-
-                                <div class="pricing-body">
-                                    <p>
-                                        <i class="bi-cup me-2"></i> Lorem Ipsum dolor sit amet</p>
-
-                                    <p>
-                                        <i class="bi-boombox me-2"></i> sed do eiusmod tempor</p>
-
-                                    <p>
-                                        <i class="bi-chat-square me-2"></i> incididunt ut labore et </p>
-
-                                    <div class="border-bottom pb-3 mb-4"></div>
-
-                                    <p>Duis aute irure </p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-            <section class="venue section-padding" id="section_6">
-                <div class="container">
-                    <div class="row">
-
-                        <div class="col-lg-12 col-12">
-                            <h2 class="mb-5">This is where it's all <u class="text-info">happening</u></h2>
-                        </div>
-
-                        <div class="col-lg-6 col-12">
-						<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3281.428904580851!2d33.03994280170136!3d34.66912308414496!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2suk!4v1667498944775!5m2!1sen!2suk" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                <!--            <iframe class="google-map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1511.091461689997!2d-73.9866630916883!3d40.758001294831736!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25855a96da09d%3A0x860bf5a5e1a00a68!2sTimes%20Square%2C%20New%20York%2C%20NY%2010036%2C%20USA!5e0!3m2!1sen!2ssg!4v1643035529098!5m2!1sen!2ssg" width="100%" height="371.59" allowfullscreen="" loading="lazy"></iframe>
-                  -->
-				        </div>
-
-                        <div class="col-lg-6 col-12 mt-5 mt-lg-0">
-                            <div class="venue-thumb bg-white shadow-lg">
-                                
-                                <div class="venue-info-title">
-                                    <h2 class="text-white mb-0">TGI Fridays</h2>
-                                </div>
-
-                                <div class="venue-info-body">
-                                    <h4 class="d-flex">
-                                        <i class="bi-geo-alt me-2"></i> 
-                                        <span>Yes, just like the ones in England</span>
-                                    </h4>
-
-                                    <h5 class="mt-4 mb-3">
-                                        <a href="mailto:hello@yourgmail.com">
-                                            <i class="bi-envelope me-2"></i>
-                                            queries@somethingberrowed.com
-                                        </a>
-                                    </h5>
-
-                                    <h5 class="mb-0">
-                                        <a href="tel: 305-240-9671">
-                                            <i class="bi-telephone me-2"></i>
-                                            010-020-0340
-                                        </a>
-                                    </h5>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-
-
-
-            <section class="speakers section-padding">
-                <div class="container">
-                    <div class="row">
-
-                        <div class="col-lg-6 col-12 d-flex flex-column justify-content-center align-items-center">
-                            <div class="speakers-text-info">
-                                <h2 class="mb-4">Things <u class="text-info">to do</u></h2>
-
-                                <p>Why not visit more of the surrounding area?</p>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6 col-12">
-                            <div class="speakers-thumb">
-                                <img src="images/avatar/1.jpg" class="img-fluid speakers-image" alt="">
-
-                                <small class="speakers-featured-text">Featured</small>
-
-                                <div class="speakers-info">
-
-                                    <h5 class="speakers-title mb-0">Church</h5>
-
-                                    <p class="speakers-text mb-0">in limassol</p>
-
-                                    <ul class="social-icon">
-                                        <li><a href="#" class="social-icon-link bi-facebook"></a></li>
-
-                                        <li><a href="#" class="social-icon-link bi-instagram"></a></li>
-
-                                        <li><a href="#" class="social-icon-link bi-google"></a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-12 col-12">
-                            <div class="row">
-                                <div class="col-lg-3 col-md-6 col-12">
-                                    <div class="speakers-thumb speakers-thumb-small">
-                                        <img src="images/avatar/2.jpeg" class="img-fluid speakers-image" alt="">
-
-                                        <div class="speakers-info">
-                                            <h5 class="speakers-title mb-0">Place 2</h5>
-
-                                            <p class="speakers-text mb-0">location</p>
-
-                                            <ul class="social-icon">
-                                                <li><a href="#" class="social-icon-link bi-facebook"></a></li>
-
-                                                <li><a href="#" class="social-icon-link bi-instagram"></a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-3 col-md-6 col-12">
-                                    <div class="speakers-thumb speakers-thumb-small">
-                                        <img src="images/avatar/3.png" class="img-fluid speakers-image" alt="">
-
-                                        <div class="speakers-info">
-                                            <h5 class="speakers-title mb-0">Place 3</h5>
-
-                                            <p class="speakers-text mb-0">location</p>
-
-                                            <ul class="social-icon">
-                                                <li><a href="#" class="social-icon-link bi-instagram"></a></li>
-
-                                                <li><a href="#" class="social-icon-link bi-whatsapp"></a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-3 col-md-6 col-12">
-                                    <div class="speakers-thumb speakers-thumb-small">
-                                        <img src="images/avatar/4.png" class="img-fluid speakers-image" alt="">
-
-                                        <div class="speakers-info">
-                                            <h5 class="speakers-title mb-0">Place 4</h5>
-
-                                            <p class="speakers-text mb-0">location</p>
-
-                                            <ul class="social-icon">
-                                                <li><a href="#" class="social-icon-link bi-facebook"></a></li>
-
-                                                <li><a href="#" class="social-icon-link bi-instagram"></a></li>
-
-                                                <li><a href="#" class="social-icon-link bi-whatsapp"></a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-3 col-md-6 col-12">
-                                    <div class="speakers-thumb speakers-thumb-small">
-                                        <img src="images/avatar/5.png" class="img-fluid speakers-image" alt="">
-
-                                        <div class="speakers-info">
-                                            <h5 class="speakers-title mb-0">Place 5</h5>
-
-                                            <p class="speakers-text mb-0">location</p>
-
-                                            <ul class="social-icon">
-                                                <li><a href="#" class="social-icon-link bi-instagram"></a></li>
-
-                                                <li><a href="#" class="social-icon-link bi-whatsapp"></a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-
-
-
-
-
-
-                    <?php
-                    if (!empty($success)) {
-                        ?>
-                        <div class="alert alert-success">Your message was sent successfully!</div>
-                        <?php
-                    }
-                    ?>
-
-                    <?php
-                    if (!empty($error)) {
-                        ?>
-                        <div class="alert alert-danger"><?= $error ?></div>
-                        <?php
-                    }
-                    ?>
-
-
-
-
-            <section class="contact section-padding" id="section_7">
-                <div class="container">
-                    <div class="row">
-
-                        <div class="col-lg-8 col-12 mx-auto">
-                            <form class="custom-form contact-form bg-white shadow-lg" action="#" method="post" role="form" action="submit.php">
-                                <h2>Please come and take part</h2>
-
-                                <div class="row">
-                                    <div class="col-lg-4 col-md-4 col-12">                                    
-                                        <input type="text" name="name" id="name" class="form-control" placeholder="Name" required="">
-                                    </div>
-
-                                    <div class="col-lg-4 col-md-4 col-12">         
-                                        <input type="email" name="email" id="email" pattern="[^ @]*@[^ @]*" class="form-control" placeholder="Email" required="">
-                                    </div>
-
-                                    <div class="col-lg-4 col-md-4 col-12">                                    
-                                        <input type="text" name="subject" id="subject" class="form-control" placeholder="Subject">
-                                    </div>
-
-                                    <div class="col-12">
-                                        <textarea class="form-control" rows="5" id="message" name="message" placeholder="Message"></textarea>
-
-
-                        <div class="form-group text-center">
-                            <div class="g-recaptcha" data-sitekey="<?= CONTACTFORM_RECAPTCHA_SITE_KEY ?>"></div>
-                        </div>
-
-
-
-                                        <button type="submit" class="form-control">Submit</button>
-                                    </div>
-
-                                </div>
-                            </form>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-        </main>
-
-        <footer class="site-footer">
-            <div class="container">
-                <div class="row align-items-center">
-
-                    <div class="col-lg-12 col-12 border-bottom pb-5 mb-5">
-                        <div class="d-flex">
-                            <a href="index.html" class="navbar-brand">
-                                <i class="bi-heart brand-logo"></i>
-                                <span class="brand-text">Matthew &amp;<br> Marianna</span>
-                            </a>
-
-                            <ul class="social-icon ms-auto">
-                                <li><a href="#" class="social-icon-link bi-facebook"></a></li>
-
-                                <li><a href="#" class="social-icon-link bi-instagram"></a></li>
-
-                                <li><a href="#" class="social-icon-link bi-whatsapp"></a></li>
-
-                                <li><a href="#" class="social-icon-link bi-youtube"></a></li>
-                            </ul>
-                        </div>
-                    </div>
-
-
-                    <div class="col-lg-7 col-12">
-                        <ul class="footer-menu d-flex flex-wrap">
-                            <li class="footer-menu-item"><a href="#" class="footer-menu-link">Privacy and Terms</a></li>
-
-                            <li class="footer-menu-item"><a href="#" class="footer-menu-link">Contact</a></li>
-                        </ul>
-                    </div>
-
-
-   
-                        
-                    <div class="col-lg-5 col-12 ms-lg-auto">
-                        <div class="copyright-text-wrap d-flex align-items-center">
-                            <p class="copyright-text ms-lg-auto me-4 mb-0">Copyright © 2023 FatherOfTheGroom Industries Ltd. 
-                            
-                            <br>All Rights Reserved. 
-          
-          					<br><br>
-							<!--Design: <a title="CSS Templates" rel="sponsored" href="https://templatemo.com" target="_blank">TemplateMo</a></p>   -->
-
-                            <a href="#section_1" class="bi-arrow-up arrow-icon custom-link"></a>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </footer>
-
-        <!-- JAVASCRIPT FILES -->
-        <script src="js/jquery.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/jquery.sticky.js"></script>
-        <script src="js/click-scroll.js"></script>
-        <script src="js/custom.js"></script>
-
-    </body>
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        document.getElementById("timer").textContent =
+            String(days).padStart(2, "0") + ":" +
+            String(hours).padStart(2, "0") + ":" +
+            String(minutes).padStart(2, "0") + ":" +
+            String(seconds).padStart(2, "0");
+    }
+
+    update();
+    setInterval(update, 1000);
+</script>
+
+</body>
 </html>
